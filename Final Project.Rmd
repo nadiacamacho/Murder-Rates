@@ -1,0 +1,175 @@
+---
+title: "Murder Rates in the United States"
+author: 'Nadia '
+date: "2024-04-20"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Determinants of Murder Rates in the United States
+Dataset Composition: The data frame consists of 44 observations, which indicate the number of records. There are 8 variables for each observation, representing different aspects related to murder rates, demographic, and socio-economic factors.
+```{r}
+library(AER)
+library(tidyverse)
+data("MurderRates")
+sort(colnames(MurderRates))
+head(MurderRates, 5)
+```
+
+# Response Variable
+
+- rate: This is the dependent or response variable representing the murder rate per 100,000 population. It is a continuous variable as it can take any real-number value within a range.
+
+# Predictor Variables
+
+- convictions: This is a continuous variable representing the number of convictions per murder in the year 1950. It is calculated as the number of convictions divided by the number of murders, and thus is a ratio.
+- executions: Another continuous variable, representing the average number of executions during 1946–1950 divided by the number of convictions in 1950. This is also a ratio.
+time: This variable represents the median time served (in months) by convicted murderers who were released in 1951. It is an integer and can be considered continuous as it measures time.
+- income: This is the median family income in 1949, expressed in thousands of USD. It is a continuous variable.
+- lfp: Labor force participation rate in 1950, expressed as a percentage. It is a continuous variable.
+- noncauc: Proportion of the population that is non-Caucasian in 1950, expressed as a decimal. It is a continuous variable.
+# Categorical Variable
+- southern: This is a factor variable indicating whether the observation is from a southern region or not. As a categorical variable, it likely has two levels: "yes" for southern regions and "no" for non-southern.
+```{r}
+model <- lm(rate ~ convictions + executions + time + income + lfp + noncauc + southern, data = MurderRates)
+summary(model)
+```
+
+## Building the Regression Model
+This model uses rate as the response variable and all other variables as predictors.
+```{r}
+model <- lm(rate ~ convictions + executions + time + income + lfp + noncauc + southern, data = MurderRates)
+summary(model)
+
+```
+
+# Interpreting the regressio model
+
+Based on the output provided for your regression model using the MurderRates dataset, here's a detailed interpretation of the various statistical measures:
+
+# F-test
+F-statistic: 15.1
+
+Interpretation: The F-test is highly significant (p-value extremely small), indicating that the overall regression model is statistically significant. This means there is strong evidence that at least one of the predictor variables in the model has a significant effect on the murder rate.
+# R-squared (R²)
+R-squared: 0.7459
+Adjusted R-squared: 0.6965
+Interpretation: Approximately 74.59% of the variability in the murder rate can be explained by the predictor variables included in the model. The adjusted R-squared, which accounts for the number of predictors, indicates a slightly lower proportion of variance explained (69.65%), which is still substantial.
+
+# Residual Standard Error (S)
+Residual Standard Error: 2.459 on 36 degrees of freedom
+Interpretation: The standard error of the residuals is approximately 2.459. This implies that the typical deviation of the observed values from the regression line (predicted values) is about 2.459 murder rates per 100,000.
+# Coefficients and t-tests
+Each predictor variable’s impact on the murder rate is measured by its coefficient:
+(Intercept): 0.44436 with a p-value of 0.9647, suggesting it is not statistically significant.
+Convictions: Coefficient of -4.33938 (p-value = 0.1277) indicates a negative relationship with the murder rate, but not statistically significant.
+Executions: Coefficient of 2.85276 (p-value = 0.6441) suggests a positive relationship, but it is not statistically significant.
+Time: Coefficient of -0.01547 (p-value = 0.0348) shows a significant negative relationship, meaning as the median time served increases, the murder rate tends to decrease.
+Income: Coefficient of -2.50013 (p-value = 0.1466) indicates a negative but not significant relationship.
+Lfp (Labor Force Participation): Coefficient of 0.19357 (p-value = 0.3540) is positive but not significant.
+Noncauc: Coefficient of 10.39903 (p-value = 0.0623), suggesting a positive association with murder rates that is nearly significant.
+Southern: The coefficient for southern regions being 3.26216 (p-value = 0.0191) indicates a significant positive impact on the murder rate.
+# Signs of Coefficients Estimates
+The signs of coefficients indicate the direction of the relationship with the murder rate:
+Negative coefficients for convictions, time, and income suggest that increases in these predictors are associated with decreases in the murder rate.
+Positive coefficients for executions, lfp, noncauc, and southern indicate that increases in these variables are associated with increases in the murder rate.
+
+## Stepwise Regression to Build a Reduced Model
+```{r}
+# Full model
+full_model <- lm(rate ~ convictions + executions + time + income + lfp + noncauc + southern, data = MurderRates)
+
+# Stepwise regression using AIC
+reduced_model <- step(full_model, direction="both")
+summary(reduced_model)
+
+```
+# Model Fit:
+F-statistic: 26.2 on 4 and 39 degrees of freedom
+Interpretation: The F-test is highly significant, indicating that the overall regression model provides a better fit to the data than a model without any predictors. This result confirms that the model variables collectively have a strong statistical impact on the response variable (murder rate).
+# R-squared (R²)
+R-squared: 0.7288
+Adjusted R-squared: 0.7009
+Interpretation: About 72.88% of the variability in the murder rate across the dataset is explained by this model. The adjusted R-squared compensates for the number of predictors used relative to the number of data points, indicating that about 70.09% of the variability is still accounted for even after this adjustment. Both values suggest a good fit of the model to the data.
+
+# Residual Standard Error (S)
+Residual Standard Error: 2.441 on 39 degrees of freedom
+Interpretation: This statistic indicates that the typical deviation of the observed values from the fitted values (i.e., the residuals) is about 2.441 murder rates per 100,000. It quantifies the typical size of the prediction errors and suggests moderate spread around the fitted values.
+
+# Coefficients and t-tests
+Coefficient Estimates
+
+(Intercept): 5.885154, t-value: 4.103, p-value: 0.000201
+Convictions: -4.974470, t-value: -1.851, p-value: 0.071714
+Time: -0.014578, t-value: -2.117, p-value: 0.040723
+Noncauc: 14.520544, t-value: 3.104, p-value: 0.003546
+Southern: 3.729056, t-value: 3.178, p-value: 0.002899
+#Interpretation of t-tests:
+
+Intercept is significantly different from zero, suggesting a baseline murder rate when all predictors are zero.
+Convictions shows a negative coefficient that is marginally significant, implying that more convictions per murder are associated with a lower murder rate, though this result is not statistically strong (p > 0.05).
+Time has a significant negative effect, indicating that longer median times served are associated with lower murder rates.
+Noncauc and Southern both show significant positive effects, suggesting that regions with higher non-Caucasian populations and southern regions have higher murder rates.
+# Signs of Coefficients Estimates
+Convictions: Negative, suggesting that an increase in the ratio of convictions to murders leads to a decrease in the murder rate.
+Time: Negative, indicating that longer prison terms are associated with lower murder rates.
+Noncauc: Positive, implying that a higher proportion of non-Caucasian population correlates with higher murder rates.
+Southern: Positive, indicating that southern regions tend to have higher murder rates.
+
+# Model Simplification and Implications:
+The stepwise reduction refined the model to focus on the most influential predictors—demographic factors (noncauc, southern) and legal factors (time). This simplification process, which eliminated less impactful variables like income, executions, and lfp, maintained a robust explanatory power (indicated by a high R-squared value). The result is a streamlined model that effectively captures key influences on the murder rate, making it easier to interpret and more practical for predictive and policy-driven applications. This approach ensures the model focuses on variables with the most significant impact, enhancing both its reliability and relevance
+
+
+## Checking Residuals
+Plot Residuals vs. Fitted Values:
+This plot helps check for patterns that might suggest non-linearity, unequal error variances, or outliers.
+```{r}
+plot(model$residuals ~ model$fitted.values, main="Residuals vs Fitted", xlab="Fitted values", ylab="Residuals")
+abline(h=0, col="red")
+
+```
+
+Normal Q-Q Plot:
+This plot checks if the residuals are normally distributed—a requirement for valid hypothesis tests in regression analysis. 
+```{r}
+qqnorm(model$residuals, main="Normal Q-Q Plot")
+qqline(model$residuals, col="red")
+
+```
+
+Identifying Outliers with Cook's Distance
+This line plot helps identify points with unusually high Cook's distance. The threshold (typically set at 4/n−k−1, where n is the number of observations and k is the number of predictors) is used to detect highly influential points.
+```{r}
+# alculate and Plot Cook’s Distance:
+cooks_d <- cooks.distance(model)
+plot(cooks_d, type="h", main="Cook's Distance", ylab="Cook's Distance", xlab="Index")
+abline(h=4/(nrow(MurderRates)-length(model$coefficients)), col="blue", lty=2)
+# Identify Observations Above Threshold:
+influential <- which(cooks_d > (4/(nrow(MurderRates)-length(model$coefficients))))
+print(influential)
+
+
+```
+
+
+```{r}
+# Creating new data for prediction
+new_data <- data.frame(
+  convictions = c(0.2, 0.3),  # Conviction ratios
+  time = c(100, 120),         # Median time served in months
+  noncauc = c(0.1, 0.2),      # Proportion of non-Caucasian population
+  southern = as.factor(c("yes", "no"))  # Southern region or not
+)
+
+# Assuming 'reduced_model' is your linear model object
+predictions <- predict(reduced_model, newdata = new_data, interval = "confidence")
+predictions
+```
+
+
+
+
+
